@@ -3,28 +3,40 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     application
-    jacoco
     checkstyle
+    jacoco
+    id("io.freefair.lombok") version "8.6"
+    id("com.github.ben-manes.versions") version "0.51.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
-
-group = "hexlet.code"
-version = "1.0-SNAPSHOT"
 
 application {
     mainClass.set("hexlet.code.Main")
 }
 
-group = "org.example"
+group = "hexlet.code"
 version = "1.0-SNAPSHOT"
-
 
 repositories {
     mavenCentral()
 }
 
+
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    implementation("com.h2database:h2:2.2.224")
+    implementation("com.zaxxer:HikariCP:5.1.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
+    implementation("org.apache.commons:commons-text:1.11.0")
+    implementation("gg.jte:jte:3.1.9")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
+    implementation("io.javalin:javalin:6.1.3")
+    implementation("io.javalin:javalin-bundle:6.1.3")
+    implementation("io.javalin:javalin-rendering:6.1.3")
+
+    testImplementation("org.assertj:assertj-core:3.25.3")
+    testImplementation(platform("org.junit:junit-bom:5.10.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.jacoco:org.jacoco.agent:0.8.12")
 }
 
 tasks.test {
@@ -37,6 +49,13 @@ tasks.test {
         // showCauses = true
         showStandardStreams = true
     }
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
 }
-
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+}
+jacoco {
+    toolVersion = "0.8.11"
+    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
+}
 tasks.jacocoTestReport { reports { xml.required.set(true) } }
