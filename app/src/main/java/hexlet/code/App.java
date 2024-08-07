@@ -40,7 +40,7 @@ public class App {
     }
 
     private static String getUrl() {
-        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project");
+        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:Url");
     }
     public static void main(String[] args) throws Exception {
         var app = getApp();
