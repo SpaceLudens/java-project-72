@@ -27,26 +27,22 @@ public class App {
         }
         BaseRepository.dataSource = dataSource;
 
-        var app = Javalin.create(javalinConfig -> {
+        return Javalin.create(javalinConfig -> {
             javalinConfig.bundledPlugins.enableDevLogging();
             javalinConfig.fileRenderer(new JavalinJte());
         });
-        return app;
     }
 
     private static int getPort() {
         String port = System.getenv().getOrDefault("PORT", "7070");
-        return Integer.valueOf(port);
+        return Integer.parseInt(port);
     }
 
     private static String getUrl() {
         String url = System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
-        return replaceUrl(url);
-    }
-
-    static String replaceUrl(String url) {
         return url.replaceAll("(\\$\\{)|(})", "");
     }
+
     public static void main(String[] args) throws Exception {
         var app = getApp();
         app.get("/", context -> context.result("Hello, World!"));
