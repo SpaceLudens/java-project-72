@@ -40,8 +40,10 @@ public class App {
     }
 
     private static String getUrl() {
-        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
+        String url = System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
+        return url.replaceAll("(\\$\\{)|(})", "");
     }
+
     public static void main(String[] args) throws Exception {
         var app = getApp();
         app.get("/", context -> context.result("Hello, World!"));
