@@ -2,6 +2,10 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
+import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.dto.MainPage;
 import hexlet.code.reopository.BaseRepository;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
@@ -9,6 +13,8 @@ import io.javalin.rendering.template.JavalinJte;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
+
+import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class App {
     public static Javalin getApp() throws Exception {
@@ -29,7 +35,7 @@ public class App {
 
         return Javalin.create(javalinConfig -> {
             javalinConfig.bundledPlugins.enableDevLogging();
-            javalinConfig.fileRenderer(new JavalinJte());
+            javalinConfig.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
     }
 
@@ -43,9 +49,18 @@ public class App {
         return url.replaceAll("(\\$\\{)|(})", "");
     }
 
+    private static TemplateEngine createTemplateEngine() {
+        ClassLoader classLoader = App.class.getClassLoader();
+        ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
+        return TemplateEngine.create(codeResolver, ContentType.Html);
+    }
+
     public static void main(String[] args) throws Exception {
         var app = getApp();
-        app.get("/", context -> context.result("Hello, World!"));
+        app.get("/", context -> {
+            var page = new MainPage();
+            context.render("index.jte", model("page", page));
+        });
         app.start(getPort());
     }
 }
