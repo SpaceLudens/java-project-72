@@ -6,9 +6,8 @@ import java.net.URI;
 import java.net.URL;
 
 public class UriToURL {
-    public static String parserUriToUrl(String URI) throws MalformedURLException, URISyntaxException {
-        URI uri = new URI(URI);
-        URL url = uri.toURL();
+    public static String parserUriToUrl(String uri) throws MalformedURLException, URISyntaxException {
+        URL url = new URI(uri).toURL();
         return url.getProtocol() + "://" + url.getAuthority();
     }
 }

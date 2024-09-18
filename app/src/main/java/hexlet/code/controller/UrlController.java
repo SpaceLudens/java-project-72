@@ -4,11 +4,9 @@ import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
 import hexlet.code.reopository.UrlRepository;
-
+import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
-import io.javalin.validation.ValidationException;
-import hexlet.code.util.NamedRoutes;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -35,19 +33,23 @@ public class UrlController {
         context.render("urls/show.jte", model("page", page));
     }
 
-    public static void create(Context context) throws SQLException {
+    public static void create(Context context) throws SQLException, MalformedURLException, URISyntaxException {
+        var uri = context.formParamAsClass("url", String.class).get();
         try {
-            var uri = context.formParamAsClass("url", String.class).get();
             var name = parserUriToUrl(uri);
             var url = new Url(name, new Timestamp(System.currentTimeMillis()));
-            if (UrlRepository.findByName(name).isEmpty()) {
+            if (UrlRepository.isUrlPresent(name)) {
                 UrlRepository.save(url);
                 context.sessionAttribute("flash", "Страница успешно добавлена");
                 context.redirect(NamedRoutes.urlsPath());
+            } else {
+                context.sessionAttribute("flash", "Страница уже существует");
+                context.redirect(NamedRoutes.urlsPath());
             }
-        } catch (ValidationException | URISyntaxException | MalformedURLException e) {
-            context.sessionAttribute("flash", "Страница уже существует");
-            context.render("urls/index.jte");
+        }  catch (IllegalArgumentException exception) {
+            context.sessionAttribute("flash", "Некорректный URL");
+            context.redirect(NamedRoutes.urlsPath());
         }
+
     }
 }
