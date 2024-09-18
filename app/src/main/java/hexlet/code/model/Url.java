@@ -8,7 +8,12 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class Url {
-    private int id;
+    private long id;
     private String name;
     private Timestamp createdAt;
+
+    public Url(String name, Timestamp createdAt) {
+        this.name = name;
+        this.createdAt = createdAt;
+    }
 }

@@ -5,11 +5,12 @@ import com.zaxxer.hikari.HikariDataSource;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.controller.UrlController;
 import hexlet.code.dto.MainPage;
 import hexlet.code.reopository.BaseRepository;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
-
+import hexlet.code.util.NamedRoutes;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
@@ -45,7 +46,8 @@ public class App {
     }
 
     private static String getUrl() {
-        String url = System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
+        String url = System.getenv().getOrDefault("JDBC_DATABASE_URL",
+                                            "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
         return url.replaceAll("(\\$\\{)|(})", "");
     }
 
@@ -57,10 +59,13 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         var app = getApp();
-        app.get("/", context -> {
+        app.get(NamedRoutes.rootPath(), context -> {
             var page = new MainPage();
             context.render("index.jte", model("page", page));
         });
+        app.get(NamedRoutes.urlsPath(), UrlController::index);
+        app.post(NamedRoutes.urlsPath(), UrlController::create);
+        app.get(NamedRoutes.urlsPath("{id}"), UrlController::show);
         app.start(getPort());
     }
 }
