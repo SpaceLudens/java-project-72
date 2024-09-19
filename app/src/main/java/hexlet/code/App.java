@@ -12,13 +12,15 @@ import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
 import hexlet.code.util.NamedRoutes;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class App {
-    public static Javalin getApp() throws Exception {
+    public static Javalin getApp() throws IOException, SQLException {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(getUrl());
 
@@ -32,12 +34,22 @@ public class App {
             var statement = connection.createStatement()) {
             statement.execute(sql);
         }
+
         BaseRepository.dataSource = dataSource;
 
-        return Javalin.create(javalinConfig -> {
+        var app = Javalin.create(javalinConfig -> {
             javalinConfig.bundledPlugins.enableDevLogging();
             javalinConfig.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
+        app.get(NamedRoutes.rootPath(), context -> {
+            var page = new MainPage();
+            context.render("index.jte", model("page", page));
+        });
+        app.get(NamedRoutes.urlsPath(), UrlController::index);
+        app.post(NamedRoutes.urlsPath(), UrlController::create);
+        app.get(NamedRoutes.urlsPath("{id}"), UrlController::show);
+
+        return app;
     }
 
     private static int getPort() {
@@ -59,13 +71,6 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         var app = getApp();
-        app.get(NamedRoutes.rootPath(), context -> {
-            var page = new MainPage();
-            context.render("index.jte", model("page", page));
-        });
-        app.get(NamedRoutes.urlsPath(), UrlController::index);
-        app.post(NamedRoutes.urlsPath(), UrlController::create);
-        app.get(NamedRoutes.urlsPath("{id}"), UrlController::show);
         app.start(getPort());
     }
 }

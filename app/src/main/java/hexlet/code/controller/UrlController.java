@@ -38,7 +38,7 @@ public class UrlController {
         try {
             var name = parserUriToUrl(uri);
             var url = new Url(name, new Timestamp(System.currentTimeMillis()));
-            if (UrlRepository.isUrlPresent(name)) {
+            if (!UrlRepository.isUrlPresent(name)) {
                 UrlRepository.save(url);
                 context.sessionAttribute("flash", "Страница успешно добавлена");
                 context.redirect(NamedRoutes.urlsPath());

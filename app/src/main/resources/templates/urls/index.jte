@@ -5,24 +5,27 @@
 @template.layout.page(
     page =page,
 content = @`
-    <div style="row row-cols-md-3 mb-3">
-        <table class="table table-striped">
-            @if(page.getUrls().isEmpty())
-                <p>Не добавлено ни одной страницы</p>
-            @else
-                <tr >
-                    <th >ID</th>
-                    <th>Name</th>
-                    <th>Created At</th>
+    <div class="container-lg mt-5">
+        <h1>Сайты</h1>
+        <table class="table table-bordered table-hover mt-3">
+            <thead>
+            <tr>
+                <th class=".col-sm-6 .col-lg-8">ID</th>
+                <th class=".col-sm-6 .col-lg-8">Имя</th>
+                <th class=".col-sm-6 .col-lg-8">Последняя проверка</th>
+                <th class=".col-sm-6 .col-lg-8">Код ответа</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for(var url : page.getUrls())
+                <tr>
+                    <td class=".col-sm-6 .col-lg-8">${url.getId()}</td>
+                    <td><a href="${NamedRoutes.urlsPath(url.getId())}">${url.getName()}</a></td>
+                    <td></td>
+                    <td></td>
                 </tr>
-                @for(var url : page.getUrls())
-                    <tr>
-                        <td>${url.getId()}</td>
-                        <td><a href="${NamedRoutes.urlsPath(url.getId())}">${url.getName()}</a></td>
-                        <td>${url.getCreatedAt().toString()}</td>
-                    </tr>
-                @endfor
-            @endif
+            @endfor
+            </tbody>
         </table>
     </div>
 `
