@@ -45,7 +45,7 @@ public class AppTest {
     void testCreateUrl() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=https://some-domain.org:8080/example/path";
-            var response = client.post("/urls",requestBody);
+            var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
             assertThat(response.body().string()).contains("https://some-domain.org:8080");
 
