@@ -25,7 +25,7 @@ public class UrlRepository extends BaseRepository {
         }
     }
 
-    public static Optional<Url> find(Long id) throws SQLException {
+    public static Optional<Url> findById(Long id) throws SQLException {
         var sql = "SELECT * FROM urls WHERE id = ?";
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(sql)) {
@@ -34,8 +34,9 @@ public class UrlRepository extends BaseRepository {
             if (resultSet.next()) {
                 var name = resultSet.getString("name");
                 var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(name, createdAt);
+                var url = new Url(name);
                 url.setId(id);
+                url.setCreatedAt(createdAt);
                 return Optional.of(url);
             }
             return Optional.empty();
@@ -51,8 +52,9 @@ public class UrlRepository extends BaseRepository {
                 var id = resultSet.getLong("id");
                 var name = resultSet.getString("name");
                 var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(name, createdAt);
+                var url = new Url(name);
                 url.setId(id);
+                url.setCreatedAt(createdAt);
                 result.add(url);
             }
             return result;
@@ -69,8 +71,9 @@ public class UrlRepository extends BaseRepository {
                 var id = resultSet.getLong("id");
                 var name = resultSet.getString("name");
                 var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(name, createdAt);
+                var url = new Url(name);
                 url.setId(id);
+                url.setCreatedAt(createdAt);
                 return Optional.of(url);
             }
             return Optional.empty();

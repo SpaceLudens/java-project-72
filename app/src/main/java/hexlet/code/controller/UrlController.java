@@ -3,6 +3,7 @@ package hexlet.code.controller;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
+import hexlet.code.reopository.ChecksRepository;
 import hexlet.code.reopository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
@@ -11,7 +12,6 @@ import io.javalin.http.NotFoundResponse;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.List;
 
 import static hexlet.code.parser.UriToURL.parserUriToUrl;
@@ -27,17 +27,18 @@ public class UrlController {
 
     public static void show(Context context) throws SQLException {
         var id = context.pathParamAsClass("id", Long.class).get();
-        var url = UrlRepository.find(id)
+        var url = UrlRepository.findById(id)
                 .orElseThrow(() -> new NotFoundResponse("Entity with id = " + id + " not found"));
-        var page = new UrlPage(url);
+        var urlChecks = ChecksRepository.getEntitiesByParentId(id);
+        var page = new UrlPage(url, urlChecks);
         context.render("urls/show.jte", model("page", page));
     }
 
     public static void create(Context context) throws SQLException, MalformedURLException, URISyntaxException {
-        var uri = context.formParamAsClass("url", String.class).get();
+        var uri = context.formParamAsClass("url", String.class).get().trim();
         try {
             var name = parserUriToUrl(uri);
-            var url = new Url(name, new Timestamp(System.currentTimeMillis()));
+            var url = new Url(name);
             if (!UrlRepository.isUrlPresent(name)) {
                 UrlRepository.save(url);
                 context.sessionAttribute("flash", "Страница успешно добавлена");

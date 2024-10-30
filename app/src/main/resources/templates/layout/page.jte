@@ -16,7 +16,7 @@
             integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
             crossorigin="anonymous"></script>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <div class="container">
     <header class="d-flex justify-content-center py-3">
         <ul class="nav nav-pills">
@@ -26,12 +26,14 @@
         </ul>
     </header>
 </div>
-<div class="mx-auto p-4 py-md-5">
-    @if(page != null && page.getFlash() != null)
-        <p>${page.getFlash()}</p>
-    @endif
-    ${content}
-</div>
+<main class="flex-grow-1">
+    <div>
+        @if(page != null && page.getFlash() != null)
+            <p>${page.getFlash()}</p>
+        @endif
+        ${content}
+    </div>
+</main>
 <footer class="footer border-top py-3 mt-5 bg-light">
     <div class="container-xl">
         <div class="text-center">

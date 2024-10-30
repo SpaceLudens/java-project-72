@@ -28,17 +28,20 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
     implementation("org.apache.commons:commons-text:1.11.0")
     implementation("gg.jte:jte:3.1.9")
-    implementation("org.slf4j:slf4j-simple:2.0.9")
     implementation("io.javalin:javalin:6.3.0")
     implementation("io.javalin:javalin-bundle:6.3.0")
     implementation("io.javalin:javalin-rendering:6.3.0")
-
+    implementation("com.konghq:unirest-java-core:4.4.4")
+    implementation("com.google.code.gson:gson:2.11.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation("org.assertj:assertj-core:3.25.3")
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation ("org.junit.jupiter:junit-jupiter-api:5.9.3")
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.9.3")
     testImplementation("org.jacoco:org.jacoco.agent:0.8.12")
+    implementation("org.jsoup:jsoup:1.18.1")
+
 }
 
 tasks.test {
