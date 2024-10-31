@@ -1,8 +1,10 @@
 @import hexlet.code.dto.urls.UrlPage
 @import hexlet.code.util.NamedRoutes
+@import hexlet.code.util.DateFormatter
 @param UrlPage page
 
 @template.layout.page(
+    page = page,
 content = @`
         <div>
             <h1>Сайт: ${page.getUrl().getName()}</h1>
@@ -55,7 +57,7 @@ content = @`
                         <td>${check.getTitle()}</td>
                         <td>${check.getH1()}</td>
                         <td>${check.getDescription()}</td>
-                        <td>${check.getCreatedAt().toString()}</td>
+                        <td>${DateFormatter.formatDateTime(check.getCreatedAt())}</td>
                     </tr>
                 @endfor
                 </tbody>

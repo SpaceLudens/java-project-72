@@ -29,6 +29,19 @@
 <main class="flex-grow-1">
     <div>
         @if(page != null && page.getFlash() != null)
+            @if(page.getFlash().equals("Страница уже существует"))
+                <div class="alert alert-info" role="alert">
+                    <p>${page.getFlash()}</p>
+                </div>
+            @elseif(page.getFlash().equals("Страница успешно проверена"))
+                <div class="alert alert-success" role="alert">
+                    <p>${page.getFlash()}</p>
+                </div>
+            @elseif(page.getFlash().equals("Страница успешно добавлена"))
+                <div class="alert alert-success" role="alert">
+                    <p>${page.getFlash()}</p>
+                </div>
+            @endif
             <p>${page.getFlash()}</p>
         @endif
         ${content}

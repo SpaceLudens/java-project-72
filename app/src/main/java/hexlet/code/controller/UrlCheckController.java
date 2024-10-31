@@ -30,10 +30,10 @@ public class UrlCheckController {
             String description = descriptionEl == null ? "" : descriptionEl.attr("content");
             var urlCheck = new UrlCheck(statusCode, title, h1, description, urlId);
             ChecksRepository.save(urlCheck);
-
+            context.sessionAttribute("flash", "Страница успешно проверена");
             context.redirect(NamedRoutes.urlsPath(urlId));
         } catch (RuntimeException e) {
-
+            context.sessionAttribute("flash", e.getMessage());
         }
     }
 }

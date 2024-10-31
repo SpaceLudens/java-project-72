@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
 
-import static hexlet.code.parser.UriToURL.parserUriToUrl;
+import static hexlet.code.util.UriToURL.parserUriToUrl;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class UrlController {
@@ -31,6 +31,7 @@ public class UrlController {
                 .orElseThrow(() -> new NotFoundResponse("Entity with id = " + id + " not found"));
         var urlChecks = ChecksRepository.getEntitiesByParentId(id);
         var page = new UrlPage(url, urlChecks);
+        page.setFlash(context.consumeSessionAttribute("flash"));
         context.render("urls/show.jte", model("page", page));
     }
 
