@@ -5,6 +5,7 @@ import hexlet.code.reopository.ChecksRepository;
 import hexlet.code.reopository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
+import io.javalin.http.NotFoundResponse;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.Unirest;
 import org.jsoup.Jsoup;
@@ -19,21 +20,30 @@ public class UrlCheckController {
     public static void check(Context context) throws SQLException, MalformedURLException, URISyntaxException {
         var urlId = context.pathParamAsClass("id", Long.class).get();
         try {
-            String urlName = UrlRepository.findById(urlId).get().getName();
+            String urlName = UrlRepository.findById(urlId).orElseThrow(() ->
+                    new NotFoundResponse("URL не найден")).getName();
             HttpResponse<String> response = Unirest.get(urlName).asString();
-            var statusCode = response.getStatus();
+
             Document document = Jsoup.parse(response.getBody());
+            var statusCode = response.getStatus();
+
             String title = document.title();
             Element h1El = document.selectFirst("h1");
+
             String h1 = h1El == null ? "" : h1El.text();
             Element descriptionEl = document.selectFirst("meta[name=description]");
             String description = descriptionEl == null ? "" : descriptionEl.attr("content");
+
             var urlCheck = new UrlCheck(statusCode, title, h1, description, urlId);
             ChecksRepository.save(urlCheck);
+
             context.sessionAttribute("flash", "Страница успешно проверена");
-            context.redirect(NamedRoutes.urlsPath(urlId));
+            context.sessionAttribute("flashType", "success");
         } catch (RuntimeException e) {
-            context.sessionAttribute("flash", e.getMessage());
+            context.sessionAttribute("flash", "Ошибка проверки URL");
+            context.sessionAttribute("flashType", "danger");
+        } finally {
+            context.redirect(NamedRoutes.urlsPath(urlId));
         }
     }
 }

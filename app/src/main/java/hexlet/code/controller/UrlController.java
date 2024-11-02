@@ -22,6 +22,7 @@ public class UrlController {
         List<Url> urls = UrlRepository.getEntities();
         var page = new UrlsPage(urls);
         page.setFlash(context.consumeSessionAttribute("flash"));
+        page.setFlashType(context.consumeSessionAttribute("flashType"));
         context.render("urls/index.jte", model("page", page));
     }
 
@@ -40,16 +41,19 @@ public class UrlController {
         try {
             var name = parserUriToUrl(uri);
             var url = new Url(name);
+
             if (!UrlRepository.isUrlPresent(name)) {
                 UrlRepository.save(url);
                 context.sessionAttribute("flash", "Страница успешно добавлена");
-                context.redirect(NamedRoutes.urlsPath());
+                context.sessionAttribute("flashType", "success");
             } else {
                 context.sessionAttribute("flash", "Страница уже существует");
-                context.redirect(NamedRoutes.urlsPath());
+                context.sessionAttribute("flashType", "warning");
             }
-        }  catch (IllegalArgumentException exception) {
+        } catch (IllegalArgumentException exception) {
             context.sessionAttribute("flash", "Некорректный URL");
+            context.sessionAttribute("flashType", "danger");
+        } finally {
             context.redirect(NamedRoutes.urlsPath());
         }
 
