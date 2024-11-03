@@ -20,6 +20,11 @@ import static io.javalin.rendering.template.TemplateUtil.model;
 public class UrlController {
     public static void index(Context context) throws SQLException {
         List<Url> urls = UrlRepository.getEntities();
+
+        for (Url url : urls) {
+            var lastCheck = ChecksRepository.findLatestCheckByUrlId(url.getId());
+            url.setLastUrlCheck(lastCheck);
+        }
         var page = new UrlsPage(urls);
         page.setFlash(context.consumeSessionAttribute("flash"));
         page.setFlashType(context.consumeSessionAttribute("flashType"));

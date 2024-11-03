@@ -1,4 +1,5 @@
 @import hexlet.code.dto.urls.UrlsPage
+@import hexlet.code.util.DateFormatter
 @import hexlet.code.util.NamedRoutes
 @param UrlsPage page
 
@@ -10,19 +11,25 @@ content = @`
         <table class="table table-bordered table-hover mt-3">
             <thead>
             <tr>
-                <th class=".col-sm-6 .col-lg-8">ID</th>
-                <th class=".col-sm-6 .col-lg-8">Имя</th>
-                <th class=".col-sm-6 .col-lg-8">Последняя проверка</th>
-                <th class=".col-sm-6 .col-lg-8">Код ответа</th>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Последняя проверка</th>
+                <th>Код ответа</th>
             </tr>
             </thead>
             <tbody>
             @for(var url : page.getUrls())
                 <tr>
-                    <td class=".col-sm-6 .col-lg-8">${url.getId()}</td>
+                    <td>${url.getId()}</td>
                     <td><a href="${NamedRoutes.urlsPath(url.getId())}">${url.getName()}</a></td>
-                    <td></td>
-                    <td></td>
+                    <td>${url.getLastUrlCheck() != null ? DateFormatter.formatDateTime(url.getLastUrlCheck().getCreatedAt()) : ""}</td>
+                    <td>
+                        @if(url.getLastUrlCheck() != null)
+                            ${url.getLastUrlCheck().getStatusCode()}
+                            @else
+                            &nbsp;
+                            @endif
+                    </td>
                 </tr>
             @endfor
             </tbody>
