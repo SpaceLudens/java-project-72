@@ -5,7 +5,6 @@ import hexlet.code.reopository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
-
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -13,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 
 import static hexlet.code.App.getApp;
@@ -31,7 +32,7 @@ public class AppTest {
     }
 
     @AfterEach
-    public void tearDown() throws IOException, SQLException {
+    public void tearDown() throws IOException {
         mockWebServer.shutdown();
     }
 
@@ -40,7 +41,6 @@ public class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get(NamedRoutes.rootPath());
             assertThat(response.code()).isEqualTo(200);
-            assert response.body() != null;
             assertThat(response.body().string()).contains("Анализатор страниц");
         });
     }
@@ -48,7 +48,7 @@ public class AppTest {
     @Test
     void testUrlsListPage() {
         JavalinTest.test(app, (server, client) -> {
-            var response = client.get("/urls");
+            var response = client.get(NamedRoutes.urlsPath());
             assertThat(response.code()).isEqualTo(200);
         });
     }
@@ -57,10 +57,9 @@ public class AppTest {
     void testCreateUrl() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=https://some-domain.org:8080/example/path";
-            var response = client.post("/urls", requestBody);
+            var response = client.post(NamedRoutes.urlsPath(), requestBody);
             assertThat(response.code()).isEqualTo(200);
             assertThat(response.body().string()).contains("https://some-domain.org:8080");
-
         });
     }
 
@@ -69,13 +68,13 @@ public class AppTest {
         var url = new Url("https://some-domain.org:8080");
         UrlRepository.save(url);
         JavalinTest.test(app, (server, client) -> {
-            var response = client.get("/urls/" + url.getId());
+            var response = client.get(NamedRoutes.urlsPath(url.getId()));
             assertThat(response.code()).isEqualTo(200);
         });
     }
 
     @Test
-    void testUrlCheck() {
+    void testUrlCheck() throws Exception {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=https://example.com";
             client.post(NamedRoutes.urlsPath(), requestBody);
@@ -83,14 +82,17 @@ public class AppTest {
             var urlsResponse = client.get(NamedRoutes.urlsPath());
             assertThat(urlsResponse.code()).isEqualTo(200);
 
-            mockWebServer.enqueue(new MockResponse().setBody("<html><title>Test Page</title><h1>Heading</h1><p>Description</p></html>"));
+            String htmlContent = new String(Files.readAllBytes(Paths.get("src/test/resources/test_page.html")));
+
+            mockWebServer.enqueue(new MockResponse().setBody(htmlContent).setResponseCode(200));
 
             var urlCheckResponse = client.post(NamedRoutes.urlsChecks("1"));
             assertThat(urlCheckResponse.code()).isEqualTo(200);
 
             var urlPageResponse = client.get(NamedRoutes.urlsPath("1"));
             assertThat(urlPageResponse.code()).isEqualTo(200);
-            assertThat(urlPageResponse.body().string()).contains("Test Page");
+            assertThat(urlPageResponse.body().string()).contains("Example Domain");
         });
     }
+
 }
