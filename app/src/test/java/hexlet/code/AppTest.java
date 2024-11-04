@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import static hexlet.code.App.getApp;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public final class AppTest {
+public class AppTest {
 
     private Javalin app;
     private MockWebServer mockWebServer;
@@ -31,6 +31,10 @@ public final class AppTest {
         mockWebServer.start();
     }
 
+    /**
+     * This method is called after each test method.
+     * Subclasses may override this method to perform additional cleanup.
+     */
     @AfterEach
     public void tearDown() throws IOException {
         mockWebServer.shutdown();
