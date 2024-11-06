@@ -37,6 +37,7 @@ public class ChecksRepository {
     public static List<UrlCheck> getEntitiesByParentId(long urlId) throws SQLException {
         var sql = "SELECT * FROM url_checks WHERE url_id = ? ORDER BY id DESC";
         try (var connection = dataSource.getConnection();
+
              var statement = connection.prepareStatement(sql)) {
             statement.setLong(1, urlId);
             var resultSet = statement.executeQuery();
@@ -58,29 +59,29 @@ public class ChecksRepository {
         }
     }
 
-    public static UrlCheck findLatestCheckByUrlId(long urlId) throws SQLException {
-        var sql = "SELECT * FROM url_checks WHERE url_id = ? ORDER BY created_at DESC LIMIT 1";
+    public static List<UrlCheck> findLatestCheckByUrlId() throws SQLException {
+        String sql = "SELECT DISTINCT ON (url_id) * FROM url_checks ORDER BY url_id DESC, id DESC";
+
         try (var connection = dataSource.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, urlId);
-            var resultSet = statement.executeQuery();
+             var preparedStatement = connection.prepareStatement(sql)) {
 
-            if (resultSet.next()) {
-                var id = resultSet.getLong("id");
-                var createdAt = resultSet.getTimestamp("created_at");
-                var statusCode = resultSet.getInt("status_code");
-                var title = resultSet.getString("title");
-                var h1 = resultSet.getString("h1");
-                var description = resultSet.getString("description");
+            var resultSet = preparedStatement.executeQuery();
+            List<UrlCheck> checks = new ArrayList<>();
 
-                var check = new UrlCheck(statusCode, title, h1, description, urlId);
-                check.setId(id);
-                check.setCreatedAt(createdAt);
-
-                return check;
-            } else {
-                return null;
+            while (resultSet.next()) {
+                UrlCheck check = new UrlCheck(
+                        resultSet.getInt("status_code"),
+                        resultSet.getString("title"),
+                        resultSet.getString("h1"),
+                        resultSet.getString("description"),
+                        resultSet.getLong("url_id")
+                );
+                check.setCreatedAt(resultSet.getTimestamp("created_at"));
+                checks.add(check);
             }
+
+            return checks;
         }
     }
+
 }

@@ -3,6 +3,7 @@ package hexlet.code.controller;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
 import hexlet.code.reopository.ChecksRepository;
 import hexlet.code.reopository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
@@ -21,10 +22,17 @@ public class UrlController {
     public static void index(Context context) throws SQLException {
         List<Url> urls = UrlRepository.getEntities();
 
+        List<UrlCheck> latestChecks = ChecksRepository.findLatestCheckByUrlId();
+
         for (Url url : urls) {
-            var lastCheck = ChecksRepository.findLatestCheckByUrlId(url.getId());
-            url.setLastUrlCheck(lastCheck);
+            for (UrlCheck check : latestChecks) {
+                if (url.getId() == check.getUrlId()) {
+                    url.setLastUrlCheck(check);
+                    break;
+                }
+            }
         }
+
         var page = new UrlsPage(urls);
         page.setFlash(context.consumeSessionAttribute("flash"));
         page.setFlashType(context.consumeSessionAttribute("flashType"));
