@@ -1,4 +1,4 @@
 package hexlet.code.dto;
 
-public class MainPage {
+public class MainPage extends BasePage {
 }

@@ -44,6 +44,8 @@ public class App {
         });
         app.get(NamedRoutes.rootPath(), context -> {
             var page = new MainPage();
+            page.setFlash("flash");
+            page.setFlashType("flashType");
             context.render("index.jte", model("page", page));
         });
         app.get(NamedRoutes.urlsPath(), UrlController::index);

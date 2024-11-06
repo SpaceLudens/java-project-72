@@ -63,11 +63,12 @@ public class UrlController {
                 context.sessionAttribute("flash", "Страница уже существует");
                 context.sessionAttribute("flashType", "warning");
             }
+            context.redirect(NamedRoutes.urlsPath());
         } catch (IllegalArgumentException exception) {
             context.sessionAttribute("flash", "Некорректный URL");
             context.sessionAttribute("flashType", "danger");
-        } finally {
-            context.redirect(NamedRoutes.urlsPath());
+            context.sessionAttribute("url", uri);
+            context.redirect(NamedRoutes.rootPath());
         }
 
     }
