@@ -11,10 +11,8 @@ public class Url {
     private long id;
     private String name;
     private Timestamp createdAt;
-    private UrlCheck lastUrlCheck;
 
     public Url(String name) {
         this.name = name;
-        this.createdAt = new Timestamp(System.currentTimeMillis());
     }
 }

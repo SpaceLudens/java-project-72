@@ -22,14 +22,14 @@ content = @`
                 <tr>
                     <td>${url.getId()}</td>
                     <td><a href="${NamedRoutes.urlsPath(url.getId())}">${url.getName()}</a></td>
-                    <td>${url.getLastUrlCheck() != null ? DateFormatter.formatDateTime(url.getLastUrlCheck().getCreatedAt()) : ""}</td>
-                    <td>
-                        @if(url.getLastUrlCheck() != null)
-                            ${url.getLastUrlCheck().getStatusCode()}
-                            @else
-                            &nbsp;
-                            @endif
-                    </td>
+
+                    @if(page.getUrlsChecks().containsKey(url.getId()))
+                        <td>${DateFormatter.formatDateTime(page.getUrlsChecks().get(url.getId()).getCreatedAt())}</td>
+                        <td>${page.getUrlsChecks().get(url.getId()).getStatusCode()}</td>
+                    @else
+                        <td></td>
+                        <td></td>
+                    @endif
                 </tr>
             @endfor
             </tbody>

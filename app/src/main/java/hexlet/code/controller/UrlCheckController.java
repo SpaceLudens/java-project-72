@@ -17,19 +17,18 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 
 public class UrlCheckController {
-    public static void check(Context context) throws SQLException, MalformedURLException, URISyntaxException {
+    public static void check(Context context) throws SQLException {
         var urlId = context.pathParamAsClass("id", Long.class).get();
         try {
             String urlName = UrlRepository.findById(urlId).orElseThrow(() ->
                     new NotFoundResponse("URL не найден")).getName();
-            HttpResponse<String> response = Unirest.get(urlName).asString();
 
-            Document document = Jsoup.parse(response.getBody());
+            HttpResponse<String> response = Unirest.get(urlName).asString();
             var statusCode = response.getStatus();
 
+            Document document = Jsoup.parse(response.getBody());
             String title = document.title();
             Element h1El = document.selectFirst("h1");
-
             String h1 = h1El == null ? "" : h1El.text();
             Element descriptionEl = document.selectFirst("meta[name=description]");
             String description = descriptionEl == null ? "" : descriptionEl.attr("content");

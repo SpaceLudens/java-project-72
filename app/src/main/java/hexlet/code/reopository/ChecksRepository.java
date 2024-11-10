@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static hexlet.code.reopository.BaseRepository.dataSource;
 
@@ -60,7 +62,7 @@ public class ChecksRepository {
     }
 
     public static List<UrlCheck> findLatestCheckByUrlId() throws SQLException {
-        String sql = "SELECT DISTINCT ON (url_id) * FROM url_checks ORDER BY url_id DESC, id DESC";
+        var sql = "SELECT DISTINCT ON (url_id) * FROM url_checks ORDER BY url_id DESC, id DESC";
 
         try (var connection = dataSource.getConnection();
              var preparedStatement = connection.prepareStatement(sql)) {
@@ -83,5 +85,31 @@ public class ChecksRepository {
             return checks;
         }
     }
+
+    public static Map<Long, UrlCheck> findLatestChecks() throws SQLException {
+        var sql = "SELECT * FROM url_checks WHERE url_id IN (SELECT id FROM urls) ORDER BY created_at DESC";
+        try (var connection = dataSource.getConnection();
+             var statement = connection.prepareStatement(sql)) {
+            var resultSet = statement.executeQuery();
+            Map<Long, UrlCheck> latestChecks = new HashMap<>();
+
+            while (resultSet.next()) {
+                long urlId = resultSet.getLong("url_id");
+                if (!latestChecks.containsKey(urlId)) {
+                    var statusCode = resultSet.getInt("status_code");
+                    var title = resultSet.getString("title");
+                    var h1 = resultSet.getString("h1");
+                    var description = resultSet.getString("description");
+                    var createdAt = resultSet.getTimestamp("created_at");
+
+                    UrlCheck check = new UrlCheck(statusCode, title, h1, description, urlId);
+                    check.setCreatedAt(createdAt);
+                    latestChecks.put(urlId, check);
+                }
+            }
+            return latestChecks;
+        }
+    }
+
 
 }

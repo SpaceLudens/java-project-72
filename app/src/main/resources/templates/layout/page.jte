@@ -2,7 +2,7 @@
 @import hexlet.code.dto.BasePage
 @import hexlet.code.util.NamedRoutes
 @param Content content
-@param BasePage page = null 
+@param BasePage page = null
 
 <!doctype html>
 <html lang="ru">

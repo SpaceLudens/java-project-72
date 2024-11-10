@@ -22,7 +22,7 @@ content = @`
                 </tr>
                 <tr>
                     <td>Дата создания</td>
-                    <td>${page.getUrl().getCreatedAt().toString()}</td>
+                    <td>${DateFormatter.formatDateTime(page.getUrl().getCreatedAt())}</td>
                 </tr>
             </table>
         </div>

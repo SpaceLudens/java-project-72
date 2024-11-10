@@ -7,7 +7,6 @@ import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
 import hexlet.code.controller.UrlController;
 import hexlet.code.controller.UrlCheckController;
-import hexlet.code.dto.MainPage;
 import hexlet.code.reopository.BaseRepository;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
@@ -18,10 +17,8 @@ import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
-import static io.javalin.rendering.template.TemplateUtil.model;
-
 public class App {
-    public static Javalin getApp() throws IOException, SQLException {
+    public static Javalin getApp() throws SQLException {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(getUrl());
 
@@ -42,12 +39,7 @@ public class App {
             javalinConfig.bundledPlugins.enableDevLogging();
             javalinConfig.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
-        app.get(NamedRoutes.rootPath(), context -> {
-            var page = new MainPage();
-            page.setFlash("flash");
-            page.setFlashType("flashType");
-            context.render("index.jte", model("page", page));
-        });
+        app.get(NamedRoutes.rootPath(), UrlController::renderMainPage);
         app.get(NamedRoutes.urlsPath(), UrlController::index);
         app.post(NamedRoutes.urlsPath(), UrlController::create);
         app.get(NamedRoutes.urlsPath("{id}"), UrlController::show);
