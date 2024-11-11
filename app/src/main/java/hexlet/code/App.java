@@ -12,7 +12,6 @@ import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
 import hexlet.code.util.NamedRoutes;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
