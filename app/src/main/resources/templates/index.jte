@@ -9,6 +9,12 @@ content = @`
                 <div class="col-md-10 col-lg-8 mx-auto text-blue">
                     <h1 class="display-3 mb-0">Анализатор страниц</h1>
                     <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
+                    @if (page.getFlash() != null) {
+                        <div class="alert alert-@{page.flashType} mt-3">
+                            ${page.getFlashType()}
+                        </div>
+                        }
+@endif
                     <form action="/urls" method="post" class="rss-form text-body">
                         <div class="row">
                             <div class="col">

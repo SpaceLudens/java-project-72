@@ -18,10 +18,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import static hexlet.code.util.UriToURL.parserUriToUrl;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class UrlController {
+
     public static void renderMainPage(Context context) {
         var page = new BasePage();
         page.setFlash(context.consumeSessionAttribute("flash"));
@@ -57,10 +57,9 @@ public class UrlController {
         try {
             new URL(uri).toURI();
 
-            var name = parserUriToUrl(uri);
-            var url = new Url(name);
+            var url = new Url(uri);
 
-            if (!UrlRepository.isUrlPresent(name)) {
+            if (!UrlRepository.isUrlPresent(uri)) {
                 UrlRepository.save(url);
                 context.sessionAttribute("flash", "Страница успешно добавлена");
                 context.sessionAttribute("flashType", "success");

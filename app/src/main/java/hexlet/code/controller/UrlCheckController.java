@@ -37,7 +37,7 @@ public class UrlCheckController {
             context.sessionAttribute("flash", "Страница успешно проверена");
             context.sessionAttribute("flashType", "success");
         } catch (RuntimeException e) {
-            context.sessionAttribute("flash", "Ошибка проверки URL");
+            context.sessionAttribute("flash", "Адрес не доступен");
             context.sessionAttribute("flashType", "danger");
         } finally {
             context.redirect(NamedRoutes.urlsPath(urlId));
