@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">hexlet.code</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">package hexlet.code;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
+import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.controller.UrlController;
+import hexlet.code.controller.UrlCheckController;
+import hexlet.code.reopository.BaseRepository;
+import io.javalin.Javalin;
+import io.javalin.rendering.template.JavalinJte;
+import hexlet.code.util.NamedRoutes;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.sql.SQLException;
+import java.util.stream.Collectors;
+
+<span class="nc" id="L19">public class App {</span>
+    public static Javalin getApp() throws SQLException {
+<span class="fc" id="L21">        var hikariConfig = new HikariConfig();</span>
+<span class="fc" id="L22">        hikariConfig.setJdbcUrl(getUrl());</span>
+
+<span class="fc" id="L24">        var dataSource = new HikariDataSource(hikariConfig);</span>
+
+<span class="fc" id="L26">        var url = App.class.getClassLoader().getResourceAsStream(&quot;schema.sql&quot;);</span>
+<span class="fc" id="L27">        var sql = new BufferedReader(new InputStreamReader(url))</span>
+<span class="fc" id="L28">                .lines().collect(Collectors.joining(&quot;\n&quot;));</span>
+
+<span class="fc" id="L30">        try (var connection = dataSource.getConnection();</span>
+<span class="fc" id="L31">            var statement = connection.createStatement()) {</span>
+<span class="fc" id="L32">            statement.execute(sql);</span>
+        }
+
+<span class="fc" id="L35">        BaseRepository.dataSource = dataSource;</span>
+
+<span class="fc" id="L37">        var app = Javalin.create(javalinConfig -&gt; {</span>
+<span class="fc" id="L38">            javalinConfig.bundledPlugins.enableDevLogging();</span>
+<span class="fc" id="L39">            javalinConfig.fileRenderer(new JavalinJte(createTemplateEngine()));</span>
+<span class="fc" id="L40">        });</span>
+<span class="fc" id="L41">        app.get(NamedRoutes.rootPath(), UrlController::renderMainPage);</span>
+<span class="fc" id="L42">        app.get(NamedRoutes.urlsPath(), UrlController::index);</span>
+<span class="fc" id="L43">        app.post(NamedRoutes.urlsPath(), UrlController::create);</span>
+<span class="fc" id="L44">        app.get(NamedRoutes.urlsPath(&quot;{id}&quot;), UrlController::show);</span>
+<span class="fc" id="L45">        app.post(NamedRoutes.urlsChecks(&quot;{id}&quot;), UrlCheckController::check);</span>
+<span class="fc" id="L46">        return app;</span>
+    }
+
+    private static int getPort() {
+<span class="nc" id="L50">        String port = System.getenv().getOrDefault(&quot;PORT&quot;, &quot;7070&quot;);</span>
+<span class="nc" id="L51">        return Integer.parseInt(port);</span>
+    }
+
+    private static String getUrl() {
+<span class="fc" id="L55">        String url = System.getenv().getOrDefault(&quot;JDBC_DATABASE_URL&quot;,</span>
+                                            &quot;jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;&quot;);
+<span class="fc" id="L57">        return url.replaceAll(&quot;(\\$\\{)|(})&quot;, &quot;&quot;);</span>
+    }
+
+    private static TemplateEngine createTemplateEngine() {
+<span class="fc" id="L61">        ClassLoader classLoader = App.class.getClassLoader();</span>
+<span class="fc" id="L62">        ResourceCodeResolver codeResolver = new ResourceCodeResolver(&quot;templates&quot;, classLoader);</span>
+<span class="fc" id="L63">        return TemplateEngine.create(codeResolver, ContentType.Html);</span>
+    }
+
+    public static void main(String[] args) throws Exception {
+<span class="nc" id="L67">        var app = getApp();</span>
+<span class="nc" id="L68">        app.start(getPort());</span>
+<span class="nc" id="L69">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="9.3">
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/dto/urls/UrlsPage.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/dto/urls/UrlPage.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/dto/BasePage.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/util/DateFormatter.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/util/NamedRoutes.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/util/UriToURL.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/reopository/UrlRepository.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/reopository/BaseRepository.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/reopository/ChecksRepository.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/App.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/model/Url.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/model/UrlCheck.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/controller/UrlCheckController.java">
+</file>
+<file name="/home/rustam/Desktop/java-project-72/app/src/main/java/hexlet/code/controller/UrlController.java">
+</file>
+</checkstyle>

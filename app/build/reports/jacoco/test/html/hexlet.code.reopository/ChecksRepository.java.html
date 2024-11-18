@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChecksRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">hexlet.code.reopository</a> &gt; <span class="el_source">ChecksRepository.java</span></div><h1>ChecksRepository.java</h1><pre class="source lang-java linenums">package hexlet.code.reopository;
+
+import hexlet.code.model.UrlCheck;
+
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static hexlet.code.reopository.BaseRepository.dataSource;
+
+<span class="nc" id="L15">public class ChecksRepository {</span>
+    public static void save(UrlCheck check) throws SQLException {
+<span class="fc" id="L17">        var sql = &quot;INSERT INTO url_checks (status_code, title, h1, description, url_id, created_at) &quot;</span>
+                     + &quot;VALUES (?, ?, ?, ?, ?, ?)&quot;;
+<span class="fc" id="L19">        try (var connection = dataSource.getConnection();</span>
+<span class="fc" id="L20">             var preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {</span>
+
+<span class="fc" id="L22">            preparedStatement.setInt(1, check.getStatusCode());</span>
+<span class="fc" id="L23">            preparedStatement.setString(2, check.getTitle());</span>
+<span class="fc" id="L24">            preparedStatement.setString(3, check.getH1());</span>
+<span class="fc" id="L25">            preparedStatement.setString(4, check.getDescription());</span>
+<span class="fc" id="L26">            preparedStatement.setLong(5, check.getUrlId());</span>
+<span class="fc" id="L27">            preparedStatement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));</span>
+<span class="fc" id="L28">            preparedStatement.executeUpdate();</span>
+<span class="fc" id="L29">            var generatedKeys = preparedStatement.getGeneratedKeys();</span>
+
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">            if (generatedKeys.next()) {</span>
+<span class="fc" id="L32">                check.setId(generatedKeys.getLong(1));</span>
+            } else {
+<span class="nc" id="L34">                throw new SQLException(&quot;База данных не вернула идентификатор после сохранения объекта&quot;);</span>
+            }
+        }
+<span class="fc" id="L37">    }</span>
+
+    public static List&lt;UrlCheck&gt; getEntitiesByParentId(long urlId) throws SQLException {
+<span class="fc" id="L40">        var sql = &quot;SELECT * FROM url_checks WHERE url_id = ? ORDER BY id DESC&quot;;</span>
+<span class="fc" id="L41">        try (var connection = dataSource.getConnection();</span>
+
+<span class="fc" id="L43">             var statement = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L44">            statement.setLong(1, urlId);</span>
+<span class="fc" id="L45">            var resultSet = statement.executeQuery();</span>
+
+<span class="fc" id="L47">            var result = new ArrayList&lt;UrlCheck&gt;();</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L49">                var id = resultSet.getLong(&quot;id&quot;);</span>
+<span class="fc" id="L50">                var createdAt = resultSet.getTimestamp(&quot;created_at&quot;);</span>
+<span class="fc" id="L51">                var statusCode = resultSet.getInt(&quot;status_code&quot;);</span>
+<span class="fc" id="L52">                var title = resultSet.getString(&quot;title&quot;);</span>
+<span class="fc" id="L53">                var h1 = resultSet.getString(&quot;h1&quot;);</span>
+<span class="fc" id="L54">                var description = resultSet.getString(&quot;description&quot;);</span>
+<span class="fc" id="L55">                var check = new UrlCheck(statusCode, title, h1, description, id);</span>
+<span class="fc" id="L56">                check.setId(id);</span>
+<span class="fc" id="L57">                check.setCreatedAt(createdAt);</span>
+<span class="fc" id="L58">                result.add(check);</span>
+<span class="fc" id="L59">            }</span>
+<span class="fc" id="L60">            return result;</span>
+        }
+    }
+
+    public static List&lt;UrlCheck&gt; findLatestCheckByUrlId() throws SQLException {
+<span class="nc" id="L65">        var sql = &quot;SELECT DISTINCT ON (url_id) * FROM url_checks ORDER BY url_id DESC, id DESC&quot;;</span>
+
+<span class="nc" id="L67">        try (var connection = dataSource.getConnection();</span>
+<span class="nc" id="L68">             var preparedStatement = connection.prepareStatement(sql)) {</span>
+
+<span class="nc" id="L70">            var resultSet = preparedStatement.executeQuery();</span>
+<span class="nc" id="L71">            List&lt;UrlCheck&gt; checks = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            while (resultSet.next()) {</span>
+<span class="nc" id="L74">                UrlCheck check = new UrlCheck(</span>
+<span class="nc" id="L75">                        resultSet.getInt(&quot;status_code&quot;),</span>
+<span class="nc" id="L76">                        resultSet.getString(&quot;title&quot;),</span>
+<span class="nc" id="L77">                        resultSet.getString(&quot;h1&quot;),</span>
+<span class="nc" id="L78">                        resultSet.getString(&quot;description&quot;),</span>
+<span class="nc" id="L79">                        resultSet.getLong(&quot;url_id&quot;)</span>
+                );
+<span class="nc" id="L81">                check.setCreatedAt(resultSet.getTimestamp(&quot;created_at&quot;));</span>
+<span class="nc" id="L82">                checks.add(check);</span>
+<span class="nc" id="L83">            }</span>
+
+<span class="nc" id="L85">            return checks;</span>
+        }
+    }
+
+    public static Map&lt;Long, UrlCheck&gt; findLatestChecks() throws SQLException {
+<span class="fc" id="L90">        var sql = &quot;SELECT * FROM url_checks WHERE url_id IN (SELECT id FROM urls) ORDER BY created_at DESC&quot;;</span>
+<span class="fc" id="L91">        try (var connection = dataSource.getConnection();</span>
+<span class="fc" id="L92">             var statement = connection.prepareStatement(sql)) {</span>
+<span class="fc" id="L93">            var resultSet = statement.executeQuery();</span>
+<span class="fc" id="L94">            Map&lt;Long, UrlCheck&gt; latestChecks = new HashMap&lt;&gt;();</span>
+
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">            while (resultSet.next()) {</span>
+<span class="nc" id="L97">                long urlId = resultSet.getLong(&quot;url_id&quot;);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (!latestChecks.containsKey(urlId)) {</span>
+<span class="nc" id="L99">                    var statusCode = resultSet.getInt(&quot;status_code&quot;);</span>
+<span class="nc" id="L100">                    var title = resultSet.getString(&quot;title&quot;);</span>
+<span class="nc" id="L101">                    var h1 = resultSet.getString(&quot;h1&quot;);</span>
+<span class="nc" id="L102">                    var description = resultSet.getString(&quot;description&quot;);</span>
+<span class="nc" id="L103">                    var createdAt = resultSet.getTimestamp(&quot;created_at&quot;);</span>
+
+<span class="nc" id="L105">                    UrlCheck check = new UrlCheck(statusCode, title, h1, description, urlId);</span>
+<span class="nc" id="L106">                    check.setCreatedAt(createdAt);</span>
+<span class="nc" id="L107">                    latestChecks.put(urlId, check);</span>
+                }
+<span class="nc" id="L109">            }</span>
+<span class="fc" id="L110">            return latestChecks;</span>
+        }
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UrlController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">hexlet.code.controller</a> &gt; <span class="el_source">UrlController.java</span></div><h1>UrlController.java</h1><pre class="source lang-java linenums">package hexlet.code.controller;
+
+import hexlet.code.dto.BasePage;
+import hexlet.code.dto.urls.UrlPage;
+import hexlet.code.dto.urls.UrlsPage;
+import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
+import hexlet.code.reopository.ChecksRepository;
+import hexlet.code.reopository.UrlRepository;
+import hexlet.code.util.NamedRoutes;
+import io.javalin.http.Context;
+import io.javalin.http.NotFoundResponse;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
+import static io.javalin.rendering.template.TemplateUtil.model;
+
+<span class="nc" id="L23">public class UrlController {</span>
+
+    public static void renderMainPage(Context context) {
+<span class="fc" id="L26">        var page = new BasePage();</span>
+<span class="fc" id="L27">        page.setFlash(context.consumeSessionAttribute(&quot;flash&quot;));</span>
+<span class="fc" id="L28">        page.setFlashType(context.consumeSessionAttribute(&quot;flashType&quot;));</span>
+<span class="fc" id="L29">        context.render(&quot;index.jte&quot;, model(&quot;page&quot;, page));</span>
+<span class="fc" id="L30">    }</span>
+
+    public static void index(Context context) throws SQLException {
+<span class="fc" id="L33">        List&lt;Url&gt; urls = UrlRepository.getEntities();</span>
+
+<span class="fc" id="L35">        Map&lt;Long, UrlCheck&gt; urlChecks = ChecksRepository.findLatestChecks();</span>
+
+<span class="fc" id="L37">        var page = new UrlsPage(urls, urlChecks);</span>
+<span class="fc" id="L38">        page.setFlash(context.consumeSessionAttribute(&quot;flash&quot;));</span>
+<span class="fc" id="L39">        page.setFlashType(context.consumeSessionAttribute(&quot;flashType&quot;));</span>
+<span class="fc" id="L40">        context.render(&quot;urls/index.jte&quot;, model(&quot;page&quot;, page));</span>
+<span class="fc" id="L41">    }</span>
+
+    public static void show(Context context) throws SQLException {
+<span class="fc" id="L44">        var id = context.pathParamAsClass(&quot;id&quot;, Long.class).get();</span>
+<span class="fc" id="L45">        var url = UrlRepository.findById(id)</span>
+<span class="pc" id="L46">                .orElseThrow(() -&gt; new NotFoundResponse(&quot;Entity with id = &quot; + id + &quot; not found&quot;));</span>
+<span class="fc" id="L47">        var urlChecks = ChecksRepository.getEntitiesByParentId(id);</span>
+<span class="fc" id="L48">        var page = new UrlPage(url, urlChecks);</span>
+<span class="fc" id="L49">        page.setFlash(context.consumeSessionAttribute(&quot;flash&quot;));</span>
+<span class="fc" id="L50">        page.setFlashType(context.consumeSessionAttribute(&quot;flashType&quot;));</span>
+<span class="fc" id="L51">        context.render(&quot;urls/show.jte&quot;, model(&quot;page&quot;, page));</span>
+<span class="fc" id="L52">    }</span>
+
+    public static void create(Context context) throws SQLException {
+<span class="fc" id="L55">        var uri = context.formParamAsClass(&quot;url&quot;, String.class).get().trim();</span>
+
+        try {
+<span class="fc" id="L58">            new URL(uri).toURI();</span>
+
+<span class="fc" id="L60">            var url = new Url(uri);</span>
+
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">            if (!UrlRepository.isUrlPresent(uri)) {</span>
+<span class="fc" id="L63">                UrlRepository.save(url);</span>
+<span class="fc" id="L64">                context.sessionAttribute(&quot;flash&quot;, &quot;Страница успешно добавлена&quot;);</span>
+<span class="fc" id="L65">                context.sessionAttribute(&quot;flashType&quot;, &quot;success&quot;);</span>
+            } else {
+<span class="nc" id="L67">                context.sessionAttribute(&quot;flash&quot;, &quot;Страница уже существует&quot;);</span>
+<span class="nc" id="L68">                context.sessionAttribute(&quot;flashType&quot;, &quot;warning&quot;);</span>
+            }
+<span class="fc" id="L70">            context.redirect(NamedRoutes.urlsPath());</span>
+<span class="nc" id="L71">        } catch (MalformedURLException | URISyntaxException exception) {</span>
+<span class="nc" id="L72">            context.sessionAttribute(&quot;flash&quot;, &quot;Некорректный URL&quot;);</span>
+<span class="nc" id="L73">            context.sessionAttribute(&quot;flashType&quot;, &quot;danger&quot;);</span>
+<span class="nc" id="L74">            context.redirect(NamedRoutes.rootPath());</span>
+<span class="fc" id="L75">        }</span>
+<span class="fc" id="L76">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
